@@ -7,7 +7,7 @@
         "magento/framework": "100.0.*"
     },
     "type": "magento2-theme",
-    "version": "100.0.5",
+    "version": "100.0.6",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
@@ -16,5 +16,10 @@
         "files": [
             "registration.php"
         ]
+    },
+        "extra": {
+        "installer-paths": {
+            "app/design/frontend/ApexDivision/ArteeFabrics": ["vendor/package"]
+        }
     }
 }
