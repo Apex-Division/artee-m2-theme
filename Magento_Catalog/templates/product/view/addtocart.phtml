@@ -1,0 +1,139 @@
+<?php
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var $block \Magento\Catalog\Block\Product\View */
+?>
+<?php $_product = $block->getProduct(); ?>
+<?php
+
+/*
+ * Section added by Nir - Apex
+ * Custom Qty line
+ * 
+ * Replaced 'Qty' in below html sections with dynamic variable $_custom_qty
+ */
+
+$_custom_qty_str = 'Qty';
+$_custom_qty = $_product->getcustom_qty();
+if($_custom_qty != "") {
+    $_custom_qty_str = $_custom_qty;
+}
+
+
+/*
+ * Section added by Nir - Apex
+ * Buy Sample line
+ */
+$_is_sample_available = $_product->getsample_available();
+if($_is_sample_available == 1) {
+    $opt_sku = $_product->getSku();
+    $opt_id = 0;
+
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $_sample_product = $objectManager->get('Magento\Catalog\Model\Product')->load(98);
+    
+    $attVal = $_sample_product->getOptions();
+    foreach($attVal as $optionKey => $optionVal) {
+        if($optionVal->getTitle() == "SKU") {
+            $opt_id = $optionVal->getId();
+        }
+    }
+    
+    $postDataHelper = $this->helper('Magento\Framework\Data\Helper\PostHelper');
+    $postData = $postDataHelper->getPostData($block->getAddToCartUrl($_sample_product) . "?options[" . $opt_id . "]=" . $opt_sku);
+    
+    $_order_sample_button_html = <<<HTMLBLOCK
+            <button id="order_sample_id" class="action tocart primary"
+                data-post='$postData'
+                type="button" title="Order Sample">
+                <span>Order Sample</span>
+            </button>
+HTMLBLOCK;
+}
+?>
+<?php $buttonTitle = __('Add to Cart'); ?>
+<?php if ($_product->isSaleable()): ?>
+<div class="box-tocart">
+    <div class="fieldset">
+        <?php if ($block->shouldRenderQuantity()): ?>
+        <div class="field qty">
+            <label class="label" for="qty"><span><?php /* @escapeNotVerified */ echo __($_custom_qty_str) ?></span></label>
+            <div class="control">
+                <input type="number"
+                       name="qty"
+                       id="qty"
+                       maxlength="12"
+                       value="<?php /* @escapeNotVerified */ echo $block->getProductDefaultQty() * 1 ?>"
+                       title="<?php /* @escapeNotVerified */ echo __($_custom_qty_str) ?>" class="input-text qty"
+                       data-validate="<?php echo $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                       />
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="clearfix"></div>
+        <?php endif; ?>
+        <div class="actions">
+            <button type="submit"
+                    title="<?php /* @escapeNotVerified */ echo $buttonTitle ?>"
+                    class="action primary tocart"
+                    id="product-addtocart-button">
+                <span><?php /* @escapeNotVerified */ echo $buttonTitle ?></span>
+            </button>
+            
+<?php
+/*
+ * Section added by Nir - Apex
+ * Buy Sample line
+ */
+    if($_is_sample_available == 1) {
+        echo $_order_sample_button_html;
+    }
+?>
+            
+            
+            <?php echo $block->getChildHtml('', true) ?>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<?php endif; ?>
+<?php if ($block->isRedirectToCartEnabled()) : ?>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/product/view/validation": {
+                "radioCheckboxClosest": ".nested"
+            }
+        }
+    }
+</script>
+<?php else : ?>
+<script>
+    require([
+        'jquery',
+        'mage/mage',
+        'Magento_Catalog/product/view/validation',
+        'Magento_Catalog/js/catalog-add-to-cart'
+    ], function ($) {
+        'use strict';
+
+        $('#product_addtocart_form').mage('validation', {
+            radioCheckboxClosest: '.nested',
+            submitHandler: function (form) {
+                var widget = $(form).catalogAddToCart({
+                    bindSubmit: false
+                });
+
+                widget.catalogAddToCart('submitForm', $(form));
+
+                return false;
+            }
+        });
+    });
+</script>
+<?php endif; ?>
