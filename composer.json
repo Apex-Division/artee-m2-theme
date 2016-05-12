@@ -16,13 +16,5 @@
         "files": [
             "registration.php"
         ]
-    },
-    "extra": {
-        "map": [
-            [
-                "*",
-                "frontend/ApexDivision/ArteeFabrics"
-            ]
-        ]
     }
 }
