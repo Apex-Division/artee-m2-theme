@@ -26,3 +26,4 @@ html, body, .page-wrapper{background-color:#EDEDED;color:#000;}
 .clearfix{clear:both;overflow:auto;zoom:1;}
 .clearfix:after{content:".";visibility:hidden;display:block;height:0;clear:both;}
 .product-options-bottom .box-tocart .fieldset .actions{float:none!important;display:block!important;}
+.product-options-bottom{}
